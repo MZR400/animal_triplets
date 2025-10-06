@@ -13,6 +13,8 @@
     <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.0"></script>
     <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-free-sort@2.1.0"></script>
+
 </head>
 <body></body>
 <script>
@@ -86,7 +88,17 @@ const preload = {
 };
 timeline.push(preload);
     
-    
+//note: testing free sort 
+var sort_trial = {
+    type: jsPsychFreeSort,
+    stimuli: imagePaths,
+    stim_width: 80,
+    stim_height: 60,
+    sort_area_width: 500,
+    sort_area_height: 500,
+    prompt: "<p>Click and drag the images below to sort them so that similar items are close together.</p>"
+};
+    timeline.push(sort_trial);
     
 // Welcome & consent!
 var welcome = {
