@@ -88,17 +88,6 @@ const preload = {
 };
 timeline.push(preload);
     
-//note: testing free sort 
-var sort_trial = {
-    type: jsPsychFreeSort,
-    stimuli: imagePaths,
-    stim_width: 100,
-    stim_height: 80,
-    sort_area_width: 700,
-    sort_area_height: 700,
-    prompt: "<p>Click and drag the images below to sort them so that similar items are close together.</p>"
-};
-    timeline.push(sort_trial);
     
 // Welcome & consent!
 var welcome = {
@@ -564,6 +553,18 @@ const mainProcedure = {
 
 // Add main procedure to timeline
 timeline.push(mainProcedure);
+    
+//note: testing free sort 
+var sort_trial = {
+    type: jsPsychFreeSort,
+    stimuli: imagePaths,
+    stim_width: 100,
+    stim_height: 80,
+    sort_area_width: 700,
+    sort_area_height: 700,
+    prompt: "<p>Click and drag the images below to sort them so that similar items are close together.</p>"
+};
+    timeline.push(sort_trial);
 
 // Add break
 const break_trial = {
