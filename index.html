@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Triadic Judgment Task</title>
+    <script src="https://unpkg.com/jspsych@7.3.4"></script>
+    <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
+    
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-button-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-select@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+</head>
+<body></body>
+<script>
+// Initialize jsPsych
+const jsPsych = initJsPsych({
+    show_progress_bar: false,
+    on_data_update: function() {
+        jsPsych.data.addProperties({worker_id: urlvar.workerId});
+    },
+    max_load_time: 120000
+});
+
+// Setup variables
+const timeline = [];
+const secret_code = jsPsych.randomization.randomID(8);
+const filename = `fpo_uk_general_${secret_code}.csv`; // CHANGE THIS BETWEEN VERSIONS
+const urlvar = jsPsych.data.urlVariables();
+
+// Save data configuration
+const save_data = {
+    type: jsPsychPipe,
+    action: "save",
+    experiment_id: "XI3ZrLtSbuoP", // CHANGE THIS
+    filename: filename,
+    data_string: () => jsPsych.data.get().csv()
+};
+
+// Your image paths array
+const imagePaths = [
+    "armadillo.png",
+    "baboon.png",
+    "badger.png",
+    "bear.png",
+    "cheetah.png",
+    "chimp.png",
+    "chipmunk.png",
+    "cougar.png",
+    "elephant.png",
+    "gerbil.png",
+    "giraffe.png",
+    "goat.png",
+    "gorilla.png",
+    "guinea pig.png",
+    "hippopotamus.png",
+    "hyena.png",
+    "kangaroo.png",
+    "koala.png",
+    "lemur.png",
+    "manatee.png",
+    "monkey.png",
+    "orangutan.png",
+    "pig.png",
+    "porcupine.png",
+    "racoon.png",
+    "ram.png",
+    "reindeer.png",
+    "rhinoceros.png",
+    "seal.png",
+    "squirrel.png",
+    "tapir.png",
+    "tasmanian devil.png",
+    ];
+
+// Preload images
+const preload = {
+    type: jsPsychPreload,
+    auto_preload: true,
+    images: imagePaths,
+    show_progress_bar: true,
+    message: "Loading experiment files..."
+};
+timeline.push(preload);
+    
+    
+    
+// Welcome & consent!
+var welcome = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: "Welcome to the experiment. Press any key to begin."
+};
+timeline.push(welcome);
+
+
+timeline.push({
+  type: jsPsychFullscreen,
+  fullscreen_mode: true
+});    
+
+/* define consent trail */
+var consent = {
+    type: jsPsychImageButtonResponse,
+    stimulus: "kc_lab_consent_prolific.png",
+    choices: ["Consent & Continue"]
+};
+timeline.push(consent);    
+    
+    
+// Instructions
+var instructions = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: "<p>In each trial of this task, you will see three images: one target item on top, and two choices beneath the target item." +
+    "</p><p>For each trial, <strong>please select the item that is most similar to the target item USING ANY CRITERIA.</strong>"+
+    "<p>There will be 620 trials.</p>"+
+      "<p>Click 'Continue' to begin the test.</p>",
+    choices: ["Continue"],
+  post_trial_gap: 2000
+};
+timeline.push(instructions);      
+    
+
+// Utility functions
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Function to get unique random images
+function getUniqueRandomImages(n, excludeImages = []) {
+    const availableImages = imagePaths.filter(img => !excludeImages.includes(img));
+    if (availableImages.length < n) {
+        console.error('Not enough unique images available');
+        return null;
+    }
+    return jsPsych.randomization.sampleWithoutReplacement(availableImages, n);
+}
+
+// Function to generate a random trial
+function generateRandomTrial() {
+    // Get three different images
+    const selectedImages = getUniqueRandomImages(3);
+    return {
+        type: 'random',
+        stimulus: selectedImages[0],
+        choice1: selectedImages[1],
+        choice2: selectedImages[2]
+    };
+}
+
+// Function to generate a check trial
+function generateCheckTrial() {
+    // Get target and one other image
+    const target = jsPsych.randomization.sampleWithoutReplacement(imagePaths, 1)[0];
+    const otherChoice = getUniqueRandomImages(1, [target])[0];
+    
+    // Randomly determine position of the matching stimulus
+    const isFirstChoice = Math.random() < 0.5;
+    return {
+        type: 'check',
+        stimulus: target,
+        choice1: isFirstChoice ? target : otherChoice,
+        choice2: isFirstChoice ? otherChoice : target,
+        correct_choice: isFirstChoice ? 0 : 1
+    };
+}
+
+// Your predefined validation trials
+const validationTrials = [
+    {
+        // independent claw 
+        type: 'validation',
+        stimulus: 'porcupine.png',
+        choice1: 'reindeer.png',
+        choice2: 'hyena.png'
+    },
+    {
+        
+        type: 'validation',
+        stimulus: 'koala.png',
+        choice1: 'chipmunk.png',
+        choice2: 'bear.png'
+    },
+    { 
+        type: 'validation',
+        stimulus: 'tasmanian devil.png',
+        choice1: 'cougar.png',
+        choice2: 'seal.png'
+    },
+    {
+        //cross domain claw and small 
+        type: 'validation',
+        stimulus: 'porcupine.png',
+        choice1: 'cheetah.png',
+        choice2: 'racoon.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'tasmanian devil.png',
+        choice1: 'Guinea pig.png',
+        choice2: 'bear.png'
+    },
+    {
+        //cross domain claw and medium 
+        type: 'validation',
+        stimulus: 'cougar.png',
+        choice1: 'cheetah pig.png',
+        choice2: 'chimp.png'
+    },
+    {
+         type: 'validation',
+        stimulus: 'koala.png',
+        choice1: 'badger pig.png',
+        choice2: 'porcupine.png'
+    },
+    {
+        //cross domain claw and large 
+         type: 'validation',
+        stimulus: 'cheetah.png',
+        choice1: 'tasmanian devil pig.png',
+        choice2: 'manatee.png'
+    },
+    {
+         type: 'validation',
+        stimulus: 'bear.png',
+        choice1: 'hippopotamus pig.png',
+        choice2: 'cougar.png'
+    },
+    {
+        // independent prim 
+        type: 'validation',
+        stimulus: 'monkey.png',
+        choice1: 'baboon.png',
+        choice2: 'badger.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'baboon.png',
+        choice1: 'gorilla.png',
+        choice2: 'gerbil.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'orangutan.png',
+        choice1: 'rhinoceros.png',
+        choice2: 'chimp.png'
+    },
+    {
+        // cross domain prim and small 
+        type: 'validation',
+        stimulus: 'lemur.png',
+        choice1: 'raccoon.png',
+        choice2: 'gorilla.png'
+    },
+    { 
+        type: 'validation',
+        stimulus: 'monkey.png',
+        choice1: 'orangutan.png',
+        choice2: 'porcupine.png'
+    },
+    {
+        // cross domain prim and medium
+         type: 'validation',
+        stimulus: 'baboon.png',
+        choice1: 'lemur.png',
+        choice2: 'armadillo.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'chimp.png',
+        choice1: 'goat.png',
+        choice2: 'gorilla.png'
+    },
+    {
+        // cross domain prim and large 
+         type: 'validation',
+        stimulus: 'orangutan.png',
+        choice1: 'chimp.png',
+        choice2: 'giraffe.png'
+    },
+    {
+         type: 'validation',
+        stimulus: 'gorilla.png',
+        choice1: 'bear.png',
+        choice2: 'baboon.png'
+    },
+    {
+        // independent hoof 
+        type: 'validation',
+        stimulus: 'tapir.png',
+        choice1: 'pig.png',
+        choice2: 'kangaroo.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'ram.png',
+        choice1: 'bear.png',
+        choice2: 'reindeer.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'giraffe.png',
+        choice1: 'goat.png',
+        choice2: 'gerbil.png'
+    },
+    {
+        // cross domain hoof and medium 
+        type: 'validation',
+        stimulus: 'pig.png',
+        choice1: 'giraffee.png',
+        choice2: 'koala.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'goat.png',
+        choice1: 'badger.png',
+        choice2: 'reindeer.png'
+    },
+    {
+        //cross domain hoof and large 
+        type: 'validation',
+        stimulus: 'giraffee.png',
+        choice1: 'ram.png',
+        choice2: 'cheetah.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'reindeer.png',
+        choice1: 'seal.png',
+        choice2: 'tapir.png'
+    },
+    {
+        // independent rod 
+        type: 'validation',
+        stimulus: 'chipmunk.png',
+        choice1: 'gerbil.png',
+        choice2: 'elephant.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'raccoon.png',
+        choice1: 'pig.png',
+        choice2: 'armadillo.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'badger.png',
+        choice1: 'armadillo.png',
+        choice2: 'manatee.png'
+    },
+    {
+        // cross domain rod and small 
+        type: 'validation',
+        stimulus: 'gerbil.png',
+        choice1: 'armadillo.png',
+        choice2: 'lemur.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'Guinea pig.png',
+        choice1: 'monkey.png',
+        choice2: 'badger.png'
+    },
+    {
+        // cross domain rod and medium
+        type: 'validation',
+        stimulus: 'badger.png',
+        choice1: 'baboon.png',
+        choice2: 'chipmunk.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'armadillo.png',
+        choice1: 'raccoon.png',
+        choice2: 'goat.png'
+    },
+    {
+        // independent toed 
+        type: 'validation',
+        stimulus: 'seal.png',
+        choice1: 'Guinea pig.png',
+        choice2: 'manatee.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'kangaroo.png',
+        choice1: 'rhinoceros.png',
+        choice2: 'ram.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'elephant.png',
+        choice1: 'manatee.png',
+        choice2: 'monkey.png'
+    },
+    { 
+        // independent small 
+        type: 'validation',
+        stimulus: 'gerbil.png',
+        choice1: 'cougar.png',
+        choice2: 'tasmanian devil.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'monkey.png',
+        choice1: 'porcupine.png',
+        choice2: 'goat.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'squirrel.png',
+        choice1: 'koala.png',
+        choice2: 'lemur.png'
+    },
+    {
+        // independent medium 
+        type: 'validation',
+        stimulus: 'armadillo.png',
+        choice1: 'pig.png',
+        choice2: 'kangaroo.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'chimp.png',
+        choice1: 'Guinea pig.png',
+        choice2: 'hyena.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'goat.png',
+        choice1: 'badger.png',
+        choice2: 'gerbil.png'
+    },
+    {
+        // independent large 
+        type: 'validation',
+        stimulus: 'hippopotamus.png',
+        choice1: 'orangutan.png',
+        choice2: 'ram.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'bear.png',
+        choice1: 'kangaroo.png',
+        choice2: 'monkey.png'
+    },
+    {
+        type: 'validation',
+        stimulus: 'gorilla.png',
+        choice1: 'porcupine.png',
+        choice2: 'manatee.png'
+    }
+
+];
+
+// Function to create a mixed trial sequence
+function createTrialSequence(numRandom, numCheck, numValidation) {
+    let trials = [];
+    
+    // Generate random trials
+    for (let i = 0; i < numRandom; i++) {
+        trials.push(generateRandomTrial());
+    }
+    
+    // Generate check trials
+    for (let i = 0; i < numCheck; i++) {
+        trials.push(generateCheckTrial());
+    }
+    
+    // Add validation trials
+    const selectedValidation = jsPsych.randomization.sampleWithoutReplacement(
+        validationTrials, 
+        numValidation
+    );
+    trials = trials.concat(selectedValidation);
+    
+    // Shuffle all trials
+    return shuffle(trials);
+}
+
+// Create trial
+const createTrial = {
+    type: jsPsychImageButtonResponse,
+    stimulus: jsPsych.timelineVariable('stimulus'),
+    choices: function() {
+        return [
+            jsPsych.timelineVariable('choice1'),
+            jsPsych.timelineVariable('choice2')
+        ];
+    },
+    button_html: '<button class="jspsych-btn"><img src=%choice%></button>',
+    on_finish: function(data) {
+        const trialType = jsPsych.timelineVariable('type');
+        data.trial_type = trialType;
+        data.speedy = data.rt < 900;
+        data.choices = [jsPsych.timelineVariable('choice1'), jsPsych.timelineVariable('choice2')];
+        
+        if (trialType === 'check') {
+            data.correct = data.response === jsPsych.timelineVariable('correct_choice');
+        }
+    }
+};
+
+// Feedback for speedy responses
+const speedFeedback = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "<p><strong>You're going too fast.</strong></p>Please slow down and assess each triplet.<p>Press 'y' to continue.</p>",
+    choices: ['y']
+};
+
+// Feedback for check trials
+const checkFeedback = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "<p><strong>Incorrect!</strong></p>That was an attention check. Please pay attention while completing this task.<p>Press 'y' to continue.</p>",
+    choices: ['y']
+};
+
+// Create the main procedure
+const mainProcedure = {
+    timeline: [
+        {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: '+',
+            choices: "NO_KEYS",
+            trial_duration: 500
+        },
+        createTrial,
+        {
+            timeline: [checkFeedback],
+            conditional_function: function() {
+                const lastTrial = jsPsych.data.get().last(1).values()[0];
+                return lastTrial.trial_type === 'check' && !lastTrial.correct;
+            }
+        },
+        {
+            timeline: [speedFeedback],
+            conditional_function: function() {
+                const lastTrial = jsPsych.data.get().last(1).values()[0];
+                return lastTrial.rt < 900 && lastTrial.trial_type != 'check';
+            }
+        }
+    ],
+    timeline_variables: createTrialSequence(550, 20, 50), // Adjust numbers as needed. In order: random, check, validation
+    randomize_order: false // Already randomized in createTrialSequence
+};
+
+// Add main procedure to timeline
+timeline.push(mainProcedure);
+
+// Add break
+const break_trial = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: "Feel free to take a break! Click 'Continue' when you're ready to proceed.",
+    choices: ['Continue']
+};
+//timeline.push(break_trial);
+
+
+    // including demographic instructions
+var demographic_instructions = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: "<p>Awesome!<p>For this last part of the experiment, please provide us with information about yourself.</p> ",
+      choices: ["Continue"],
+      post_trial_gap: 1000
+    };
+timeline.push(demographic_instructions);
+      
+      
+var demographics = {
+    type: jsPsychSurveyMultiSelect,
+    questions: [
+      {prompt: "Which categories describe you? Select all that apply to you:", 
+        options: ["American Indian or Alaska Native - For example, Navajo Nation, Mayan", 
+                  "Asian - For example, Chinese, Asian Indian",
+                  "Black or African American - For example, Jamaican, Ethiopian",
+                  "Hispanic or Latino - For example, Mexican or Mexican American, Puerto Rican, Salvadoran",
+                 "Middle Eastern or North African - For example, Lebanese, Iranian, Moroccan",
+                 "Native Hawaiian or Other Pacific Islander - For example, Somoan, Fijian",
+                 "White - For example, German, Irish",
+                 "Some other race, ethnicity, or origin",
+                 "I prefer not to answer"], 
+        horizontal: false,
+        required: true,
+        name: 'race_eth'}
+    ]};
+    timeline.push(demographics);  
+
+    
+      
+    var id_age = {
+      type: jsPsychSurveyText,
+      questions: [{prompt: "Please enter your age (in years):", rows: 1, columns: 6, name: "age", required: true}, 
+                  {prompt: "How do you currently describe your gender identity? Please specify.", rows: 1, columns: 60, name: "gender"},
+                 ]
+    };
+    timeline.push(id_age);
+      
+      
+// push data to server 
+timeline.push(save_data); 
+      
+   var goodbye = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: function(){
+        output = "Woohoo! You have finished the experiment. <br>";
+          if(urlvar.workerId.length > 7){
+              output = output + "<strong> Here is your secret code: C119H2OR </strong><br>"; // CHANGE THIS
+          }
+        output = output + "Click the button below to complete the experiment. Goodbye!<br><br>";
+      return output;
+      },
+      choices: ["<a href='https://app.prolific.com/submissions/complete?cc=C119H2OR'>Complete Experiment</a>"]    // CHANGE THIS  
+   };
+    timeline.push(goodbye);
+
+    
+// Run the experiment
+jsPsych.run(timeline);
+</script>
+</html>
