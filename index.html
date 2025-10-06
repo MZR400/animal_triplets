@@ -30,14 +30,14 @@ const jsPsych = initJsPsych({
 // Setup variables
 const timeline = [];
 const secret_code = jsPsych.randomization.randomID(8);
-const filename = `fpo_uk_general_${secret_code}.csv`; // CHANGE THIS BETWEEN VERSIONS
+const filename = `michelle_animal_triplets_thesis_{secret_code}.csv`; // CHANGE THIS BETWEEN VERSIONS
 const urlvar = jsPsych.data.urlVariables();
 
 // Save data configuration
 const save_data = {
     type: jsPsychPipe,
     action: "save",
-    experiment_id: "XI3ZrLtSbuoP", // CHANGE THIS
+    experiment_id: "LRNfPkrrBZe4",
     filename: filename,
     data_string: () => jsPsych.data.get().csv()
 };
