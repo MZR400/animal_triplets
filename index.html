@@ -109,7 +109,26 @@ var consent = {
     choices: ["Consent & Continue"]
 };
 timeline.push(consent);    
-    
+
+//note: testing free sort 
+var sort_trial = {
+    type: jsPsychFreeSort,
+    stimuli: imagePaths,
+    stim_width: 100,
+    stim_height: 80,
+    sort_area_width: 700,
+    sort_area_height: 700,
+    prompt: "<p>Click and drag the images below to sort them so that similar items are close together.</p>"
+};
+    timeline.push(sort_trial);
+
+// Add break
+const break_trial = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: "Feel free to take a break! Click 'Continue' when you're ready to proceed.",
+    choices: ['Continue']
+};
+//timeline.push(break_trial);
     
 // Instructions
 var instructions = {
@@ -553,26 +572,6 @@ const mainProcedure = {
 
 // Add main procedure to timeline
 timeline.push(mainProcedure);
-    
-//note: testing free sort 
-var sort_trial = {
-    type: jsPsychFreeSort,
-    stimuli: imagePaths,
-    stim_width: 100,
-    stim_height: 80,
-    sort_area_width: 700,
-    sort_area_height: 700,
-    prompt: "<p>Click and drag the images below to sort them so that similar items are close together.</p>"
-};
-    timeline.push(sort_trial);
-
-// Add break
-const break_trial = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: "Feel free to take a break! Click 'Continue' when you're ready to proceed.",
-    choices: ['Continue']
-};
-//timeline.push(break_trial);
 
 
     // including demographic instructions
