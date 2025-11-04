@@ -24,6 +24,9 @@ const jsPsych = initJsPsych({
     on_data_update: function() {
         jsPsych.data.addProperties({worker_id: urlvar.workerId});
     },
+    on_finish: function(data){ 
+        window.location.assign("https://uwmadison.sona-systems.com/webstudy_credit.aspx?experiment_id=1907&credit_token=412dcff3e18640fcba133cc1e97097d6&survey_code="+urlvar.workerId)
+    },
     max_load_time: 120000
 });
 
@@ -567,7 +570,7 @@ const mainProcedure = {
             }
         }
     ],
-    timeline_variables: createTrialSequence(300, 16, 44), // Adjust numbers as needed. In order: random, check, validation
+    timeline_variables: createTrialSequence(3, 1, 4), // Adjust numbers as needed. In order: random, check, validation
     randomize_order: false // Already randomized in createTrialSequence
 };
 
@@ -617,7 +620,6 @@ var demographics = {
       
 // push data to server 
 timeline.push(save_data); 
-      
    var goodbye = {
       type: jsPsychHtmlButtonResponse,
       stimulus: function(){
@@ -628,7 +630,7 @@ timeline.push(save_data);
         output = output + "Click the button below to complete the experiment. Goodbye!<br><br>";
       return output;
       },
-      choices: ["<a href='https://app.prolific.com/submissions/complete?cc=C119H2OR'>Complete Experiment</a>"]    // CHANGE THIS  
+      choices: ["Complete Experiment"]    // CHANGE THIS  
    };
     timeline.push(goodbye);
 
